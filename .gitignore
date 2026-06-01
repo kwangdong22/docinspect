@@ -1,0 +1,13 @@
+# Security
+.env
+
+# Node modules
+api/node_modules/
+api/dist/
+
+# Python environments/cache
+extractor/__pycache__/
+extractor/.pytest_cache/
+
+# Database volumes
+postgres_data/

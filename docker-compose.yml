@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - EXTRACTOR_URL=${EXTRACTOR_URL}
+      - PORT=${PORT}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - extractor
+
+  extractor:
+    build: ./extractor
+    ports:
+      - "8000:8000"
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=docinspect
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  reverse-proxy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+    command: caddy reverse-proxy --from :80 --to api:3000
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
